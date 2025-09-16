@@ -1,0 +1,8 @@
+[package]
+name = "solar_rust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+canparse = "0.1"
+
