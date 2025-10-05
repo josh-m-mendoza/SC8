@@ -4,5 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-canparse = "0.1"
+anyhow = "1.0.99"
+dbc-codegen = { git = "https://github.com/technocreatives/dbc-codegen.git", rev = "5b9d3d0670563ac91f303ef689e0357b198dbc32" }
+
 
