@@ -1,0 +1,103 @@
+VERSION "HIPBNYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY/4/%%%/4/'%**4YYY///"
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+
+BS_:
+
+BU_: SinusodialWaveControllerKLS
+
+
+BO_ 217128453 Message1: 8 SinusodialWaveControllerKLS
+ SG_ SpeedRPM : 0|16@1+ (1,0) [0|6000] "rpm" Vector__XXX
+ SG_ MotorCurrent : 16|16@1+ (0.1,0) [0|400] "A" Vector__XXX
+ SG_ BatteryVoltage : 32|16@1+ (0.1,0) [0|180] "V" Vector__XXX
+ SG_ IDError : 48|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ OverVoltage : 49|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ LowVoltage : 50|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Reserved51 : 51|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Stall : 52|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ InternalVoltsFault : 53|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ OverTemperature : 54|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ThrottleError : 55|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Reserved56 : 56|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ InternalReset : 57|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ HallThrottleOpen : 58|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ AngleSensorError : 59|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Reserved60 : 60|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Reserved61 : 61|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ MotorOverTemperature : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ HallGalvanometerError : 63|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 217128709 Message2: 8 SinusodialWaveControllerKLS
+ SG_ ThrottleSignal : 0|8@1+ (0.019607843,0) [0|5] "V" Vector__XXX
+ SG_ ControllerTemperature : 8|8@1+ (1,-40) [-40|215] "C" Vector__XXX
+ SG_ MotorTemperature : 16|8@1+ (1,-30) [-30|225] "C" Vector__XXX
+ SG_ CommandStatus : 32|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ FeedbackStatus : 34|2@1+ (1,0) [0|3] "" Vector__XXX
+ SG_ HallA : 40|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ HallB : 41|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ HallC : 42|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BrakeSwitch : 43|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BackwardSwitch : 44|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ForwardSwitch : 45|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ FootSwitch : 46|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BoostSwitch : 47|1@1+ (1,0) [0|1] "" Vector__XXX
+
+
+CM_ BO_ 217128453 "Message 1 broadcast (OUT IN ID 0x0CF11E05), period 50 ms.";
+CM_ SG_ 217128453 SpeedRPM "Actual speed (RPM) = (MSB*256 + LSB), 1 rpm/bit; range 0–6000 rpm.";
+CM_ SG_ 217128453 MotorCurrent "Actual current = (MSB*256 + LSB) / 10, 0.1 A/bit; raw range 0–4000 maps to 0–400 A.";
+CM_ SG_ 217128453 BatteryVoltage "Actual voltage = (MSB*256 + LSB) / 10, 0.1 V/bit; raw range 0–1800 maps to 0–180 V.";
+CM_ SG_ 217128453 IDError "ERR0 Identification error: Identification Angle operation failed; retry identification per Kelly instructions.";
+CM_ SG_ 217128453 OverVoltage "ERR1 Over voltage: battery voltage too high; check battery volts and configuration.";
+CM_ SG_ 217128453 LowVoltage "ERR2 Low voltage: battery voltage too low / under-voltage setting; check/charge battery.";
+CM_ SG_ 217128453 Reserved51 "ERR3 reserved.";
+CM_ SG_ 217128453 Stall "ERR4 stall: no speed feedback after controller outputs command for 2 seconds; may relate to speed sensors or phase wires.";
+CM_ SG_ 217128453 InternalVoltsFault "ERR5 Internal volts fault: check B+/PWR wiring; possible excessive load on +5V supply; controller may be damaged.";
+CM_ SG_ 217128453 OverTemperature "ERR6 Over temperature: controller temp exceeded 100°C; stops, restarts below 80°C.";
+CM_ SG_ 217128453 ThrottleError "ERR7 Throttle error at power-up: valid throttle above TPS Low / dead zone at power-on; fault clears when throttle released; set correct pedal type if hall pedal.";
+CM_ SG_ 217128453 Reserved56 "ERR8 Reserved.";
+CM_ SG_ 217128453 InternalReset "ERR9 Internal reset: may be transient (temporary over-current or momentary high/low battery voltage).";
+CM_ SG_ 217128453 HallThrottleOpen "ERR10 Hall throttle open/short-circuit: check throttle pedal wiring; restart clears after repair.";
+CM_ SG_ 217128453 AngleSensorError "ERR11 Angle sensor error: speed sensor type error / incorrect wiring / sensor damaged or erratic feedback.";
+CM_ SG_ 217128453 Reserved60 "ERR12 Reserved.";
+CM_ SG_ 217128453 Reserved61 "ERR13 Reserved.";
+CM_ SG_ 217128453 MotorOverTemperature "ERR14 Motor over-temperature: exceeds configured maximum; controller shuts down until motor cools; max temp configurable.";
+CM_ SG_ 217128453 HallGalvanometerError "ERR15 Hall galvanometer sensor error: hall galvanometer device damaged; only valid for KLS-8080I.";
+CM_ BO_ 217128709 "Message 2 broadcast (OUT IN ID 0x0CF11F05), period 50 ms.";
+CM_ SG_ 217128709 ThrottleSignal "Throttle signal: raw 0–255 maps to 0–5 V.";
+CM_ SG_ 217128709 ControllerTemperature "Controller temperature: offset 40; actual = raw - 40, 1°C/bit.";
+CM_ SG_ 217128709 MotorTemperature "Motor temperature: offset 30; actual = raw - 30, 1°C/bit.";
+CM_ SG_ 217128709 CommandStatus "Status of command: 0=Neutral, 1=forward, 2=backward, 3=reserved.";
+CM_ SG_ 217128709 FeedbackStatus "Status of feedback: 0=stationary, 1=forward, 2=backward, 3=reserved.";
+CM_ SG_ 217128709 HallA "Switch signals: Hall A.";
+CM_ SG_ 217128709 HallB "Switch signals: Hall B.";
+CM_ SG_ 217128709 HallC "Switch signals: Hall C.";
+CM_ SG_ 217128709 BrakeSwitch "Switch signals: 12V brake switch.";
+CM_ SG_ 217128709 BackwardSwitch "Switch signals: backward switch.";
+CM_ SG_ 217128709 ForwardSwitch "Switch signals: forward switch.";
+CM_ SG_ 217128709 FootSwitch "Switch signals: foot switch.";
+CM_ SG_ 217128709 BoostSwitch "Switch signals: boost switch.";
+VAL_ 217128709 CommandStatus 0 "Neutral" 1 "forward" 2 "backward" 3 "reserved" ;
+VAL_ 217128709 FeedbackStatus 0 "stationary" 1 "forward" 2 "backward" 3 "reserved" ;

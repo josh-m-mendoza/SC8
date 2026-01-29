@@ -2227,7 +2227,7 @@ impl MotorCurrentVectorMeasurement {
     /// - Unit: "A"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn idd(&self) -> i32 {
+    pub fn id(&self) -> i32 {
         self.id_raw()
     }
 
@@ -2318,7 +2318,7 @@ impl core::fmt::Debug for MotorCurrentVectorMeasurement {
         if f.alternate() {
             f.debug_struct("MotorCurrentVectorMeasurement")
                 .field("iq", &self.iq())
-                .field("id", &self.idd())
+                .field("id", &self.id())
                 .finish()
         } else {
             f.debug_tuple("MotorCurrentVectorMeasurement")
@@ -2334,7 +2334,7 @@ impl defmt::Format for MotorCurrentVectorMeasurement {
             f,
             "MotorCurrentVectorMeasurement {{ Iq={:?} Id={:?} }}",
             self.iq(),
-            self.idd(),
+            self.id(),
         );
     }
 }
