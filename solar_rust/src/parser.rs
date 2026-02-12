@@ -6,7 +6,10 @@ use std::convert::TryFrom;
 
 fn make_frame(id_raw: u32, data: [u8; 8]) -> CanFrame {
     let id = CanId::try_from(id_raw).expect("Invalid CAN ID");
-    CanFrame::new(id, &data).expect("Invalid CAN frame")
+    println!("{:?}",id);
+    let frame = CanFrame::new(id, &data).expect("Invalid CAN frame");
+    println!("{:?}", CanFrame::dlc(&frame));
+    frame
 }
 
 pub fn parse_log(path: &str) -> Vec<CanFrame> {
@@ -31,7 +34,7 @@ pub fn parse_log(path: &str) -> Vec<CanFrame> {
         // Parse ID
         let id = u32::from_str_radix(id_str.trim_start_matches("0x"), 16)
             .expect("Invalid CAN ID");
-
+        // println!("{:?}",id);
         // Parse data into bytes
         let mut hex_data = data_str.trim_start_matches("0x").to_string();
         if hex_data.len() % 2 != 0 {

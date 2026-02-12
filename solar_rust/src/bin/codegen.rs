@@ -12,7 +12,7 @@ fn main() -> Result<()> {
     // tuples of dbc files : message files
     let jobs = [
         ("./drivercontroller.dbc", "src/messages_drivercontroller.rs"),
-        ("./motorcontroller.dbc", "src/messages_motorcontroller.rs"),
+        // ("./motorcontroller.dbc", "src/messages_motorcontroller.rs"),
         ("./mppt.dbc", "src/messages_mppt.rs"),
         ("./kelly_dbc.dbc","src/messages_kelly.rs")
     ];

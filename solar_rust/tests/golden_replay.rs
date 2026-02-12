@@ -6,7 +6,7 @@ use solar_rust::messages_motorcontroller;
 #[test]
 #[cfg(feature = "debug")]
 fn golden_decode_motorcontroller() {
-    let frames = parse_log("tests/golden/RawDataLog-20251016-2042.txt");
+    let frames = parse_log("src/Mock_Kelly_Data.txt");
     assert!(!frames.is_empty());
 
     for parsed in frames {
