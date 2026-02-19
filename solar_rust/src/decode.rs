@@ -1,7 +1,7 @@
 use embedded_can::Frame;
 use socketcan::{CanFrame, CanId};
 use crate::messages_kelly;
-
+use crate::messages_kelly::{Message2CommandStatus,Message2FeedbackStatus};
 
 
 
@@ -12,7 +12,6 @@ pub trait DecodeMessage{
 
 
 impl messages_kelly::Message1{
-
     pub fn decodeMessage(&self)->Vec<String>{
         let rpm: u16 = self.speed_rpm();
         let motor_current: f32 = self.motor_current();
@@ -51,3 +50,36 @@ impl messages_kelly::Message1{
 
 }
 
+impl messages_kelly::Message2{
+    pub fn decodeMessage(&self)->Vec<String>{
+        let throttle_signal: f32 = self.throttle_signal();
+        let controller_temperature: i16 = self.controller_temperature();
+        let motor_temperature: i16 = self.motor_temperature();
+        let command_status: Message2CommandStatus  = self.command_status();
+        let feedback_status: Message2FeedbackStatus = self.feedback_status();
+        let hall_a: bool = self.hall_a();
+        let hall_b: bool = self.hall_b();
+        let hall_c: bool = self.hall_c();
+        let brake_switch : bool = self.brake_switch();
+        let backward_switch: bool = self.backward_switch();
+        let forward_switch: bool = self.forward_switch();
+        let foot_switch: bool = self.foot_switch();
+        let boost_switch: bool = self.boost_switch();
+
+        vec![
+            format!("Throttle Signal: {}", throttle_signal),
+            format!("Controller Temperature: {}", controller_temperature),
+            format!("Motor Temperature: {:.2} V", motor_temperature),
+            format!("Command Status: {:?}", command_status),
+            format!("FeedBack Status: {:?}", feedback_status),
+            format!("Hall A: {}", hall_a),
+            format!("Hall B: {}", hall_b),
+            format!("Hall C: {}", hall_c),
+            format!("Brake Switch: {}", brake_switch),
+            format!("Backward Switch: {}", backward_switch),
+            format!("Forward Switch: {}", forward_switch),
+            format!("Foot Switch: {}", foot_switch),
+            format!("Boost Switch: {}", boost_switch),
+        ]
+    }
+}
