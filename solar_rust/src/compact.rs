@@ -3,6 +3,7 @@ use anyhow::{Context, Result};
 use std::io::{self, BufRead, BufReader, Write};
 
 
+//Helper function to take expanded frames form car test data and make compact frames so socketcan dump reader can interpret
 pub fn compact_data() -> anyhow::Result<()>{
 
     let file_path = "bob.txt";

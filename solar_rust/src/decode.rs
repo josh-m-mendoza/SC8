@@ -10,13 +10,12 @@ pub trait DecodeMessage{
     fn decodeMessage(&self) -> Vec<String>;
 }
 
-
+//decoding for message 1. Using Accesor methods within the dbc codegen file
 impl messages_kelly::Message1{
     pub fn decodeMessage(&self)->Vec<String>{
         let rpm: u16 = self.speed_rpm();
         let motor_current: f32 = self.motor_current();
         let battery_voltage: f32 = self.battery_voltage();
-
         let id_error: bool = self.id_error();
         let over_voltage_error: bool = self.over_voltage();
         let low_voltage_error: bool = self.low_voltage();
@@ -50,6 +49,7 @@ impl messages_kelly::Message1{
 
 }
 
+//decoding for message 2. Using Accesor methods within the dbc accessor file
 impl messages_kelly::Message2{
     pub fn decodeMessage(&self)->Vec<String>{
         let throttle_signal: f32 = self.throttle_signal();
@@ -69,7 +69,7 @@ impl messages_kelly::Message2{
         vec![
             format!("Throttle Signal: {}", throttle_signal),
             format!("Controller Temperature: {}", controller_temperature),
-            format!("Motor Temperature: {:.2} V", motor_temperature),
+            format!("Motor Temperature: {:.2}", motor_temperature),
             format!("Command Status: {:?}", command_status),
             format!("FeedBack Status: {:?}", feedback_status),
             format!("Hall A: {}", hall_a),
