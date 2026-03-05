@@ -7,6 +7,7 @@ edition = "2024"
 anyhow = "1.0.99"
 arbitrary = "1.4.2"
 bitvec = "1.0.1"
+clap = "4.5.57"
 dbc-codegen = { git = "https://github.com/technocreatives/dbc-codegen.git", rev = "5b9d3d0670563ac91f303ef689e0357b198dbc32" }
 defmt = "1.0.1"
 embedded-can = "0.4.1"

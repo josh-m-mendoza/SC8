@@ -12,7 +12,7 @@
 
 //! Message definitions from file `"kelly_dbc.dbc"`
 //!
-//! - Version: `Version("")`
+//! - Version: `Version("HIPBNYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY/4/%%%/4/'%**4YYY///")`
 
 #[cfg(feature = "arb")]
 use arbitrary::{Arbitrary, Unstructured};
@@ -44,7 +44,7 @@ impl Messages {
 
 /// Message1
 ///
-/// - Standard ID: 7685 (0x1e05) ///CHANGE TO EXTENDED MANUALLY
+/// - Standard ID: 7685 (0x1e05)
 /// - Size: 8 bytes
 /// - Transmitter: SinusodialWaveControllerKLS
 ///
@@ -56,7 +56,7 @@ pub struct Message1 {
 
 impl Message1 {
     pub const MESSAGE_ID: embedded_can::Id =
-        Id::Extended(unsafe { ExtendedId::new_unchecked(0xcf11e05) });
+        Id::Standard(unsafe { StandardId::new_unchecked(0x1e05) });
 
     pub const SPEED_RPM_MIN: u16 = 0_u16;
     pub const SPEED_RPM_MAX: u16 = 6000_u16;
@@ -972,7 +972,7 @@ impl<'a> Arbitrary<'a> for Message1 {
 
 /// Message2
 ///
-/// - Standard ID: 7941 (0x1f05) /// CHANGE TO EXTENDED MANUALLY
+/// - Standard ID: 7941 (0x1f05)
 /// - Size: 8 bytes
 /// - Transmitter: SinusodialWaveControllerKLS
 ///
@@ -984,7 +984,7 @@ pub struct Message2 {
 
 impl Message2 {
     pub const MESSAGE_ID: embedded_can::Id =
-        Id::Extended(unsafe { ExtendedId::new_unchecked(0xcf11f05) });
+        Id::Standard(unsafe { StandardId::new_unchecked(0x1f05) });
 
     pub const THROTTLE_SIGNAL_MIN: f32 = 0_f32;
     pub const THROTTLE_SIGNAL_MAX: f32 = 5_f32;
