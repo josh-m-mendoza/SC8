@@ -2,6 +2,7 @@
 name = "solar_rust"
 version = "0.1.0"
 edition = "2024"
+default-run = "solar_rust"
 
 [dependencies]
 anyhow = "1.0.99"
@@ -11,9 +12,11 @@ clap = "4.5.57"
 dbc-codegen = { git = "https://github.com/technocreatives/dbc-codegen.git", rev = "5b9d3d0670563ac91f303ef689e0357b198dbc32" }
 defmt = "1.0.1"
 embedded-can = "0.4.1"
-socketcan = "3.3"
+iced = { version = "0.14.0", features = ["canvas", "tokio"] }
+socketcan = { version = "3.3", optional = true}
 
 [features]
 arb = []
 std = []
 debug = []
+can = ["socketcan"]

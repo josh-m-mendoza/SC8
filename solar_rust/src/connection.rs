@@ -1,3 +1,4 @@
+#[cfg(feature = "can")]
 use socketcan::{async_std::CanSocket, CanFrame, Result};
 
 async fn make_connection() -> Result<()> {

@@ -20,6 +20,9 @@ const RED: Color          = Color { r: 1.0,   g: 0.22,  b: 0.22,  a: 1.0 };
 
 // ─── Mock Telemetry ───────────────────────────────────────────────────────────
 
+#[derive(Debug, Clone, PartialEq)]
+enum MotorDirection { Forward, Neutral, Reverse }
+
 #[derive(Debug, Clone)]
 struct Telemetry {
     rpm: f32,
@@ -29,6 +32,8 @@ struct Telemetry {
     brake: bool,
     motor_temp: f32,
     controller_temp: f32,
+    motor_direction: MotorDirection,
+    rpm_peak: f32,
     fault_over_voltage: bool,
     fault_low_voltage: bool,
     fault_stall: bool,
@@ -46,6 +51,8 @@ impl Default for Telemetry {
             brake: false,
             motor_temp: 54.0,
             controller_temp: 41.0,
+            motor_direction: MotorDirection::Forward,
+            rpm_peak: 2340.0,
             fault_over_voltage: false,
             fault_low_voltage: false,
             fault_stall: false,
@@ -66,6 +73,19 @@ impl Telemetry {
         self.brake            = (t * 0.4).sin() > 0.85;
         self.motor_temp       = 54.0  + (t * 0.15).sin() * 8.0;
         self.controller_temp  = 41.0  + (t * 0.18).cos() * 5.0;
+
+        // Peak hold — only goes up, never down
+        if self.rpm > self.rpm_peak { self.rpm_peak = self.rpm; }
+
+        // Cycle direction for demo: Forward → Neutral → Reverse
+        let dir_cycle = (t * 0.04) as u32 % 12;
+        self.motor_direction = match dir_cycle {
+            0..=1  => MotorDirection::Neutral,
+            2..=7  => MotorDirection::Forward,
+            8..=9  => MotorDirection::Neutral,
+            _      => MotorDirection::Reverse,
+        };
+
         let cycle = (t * 0.08) as u32 % 20;
         self.fault_over_voltage    = cycle == 3;
         self.fault_low_voltage     = false;
@@ -104,9 +124,9 @@ impl Dashboard {
 
         // ── Performance gauges (top 75% of left+center) ───────────────────────
         let gauges = row![
-            gauge_panel("RPM",             d.rpm,             0.0,  5000.0, &format!("{:.0}",   d.rpm),             level_color(d.rpm / 5000.0)),
-            gauge_panel("MOTOR CURRENT",   d.motor_current,   0.0,  120.0,  &format!("{:.1} A", d.motor_current),   level_color(d.motor_current / 120.0)),
-            gauge_panel("BATTERY VOLTAGE", d.battery_voltage, 80.0, 105.0,  &format!("{:.1} V", d.battery_voltage), voltage_color(d.battery_voltage)),
+            gauge_panel("RPM",           d.rpm,           0.0,  5000.0, &format!("{:.0}",   d.rpm),           level_color(d.rpm / 5000.0), Some(d.rpm_peak / 5000.0)),
+            gauge_panel("MOTOR CURRENT", d.motor_current, 0.0,  120.0,  &format!("{:.1} A", d.motor_current), level_color(d.motor_current / 120.0), None),
+            soc_panel(d.battery_voltage),
         ]
         .spacing(8)
         .width(Length::Fill)
@@ -114,9 +134,9 @@ impl Dashboard {
 
         // ── Status strip (bottom 25% of left+center) ─────────────────────────
         let status = row![
-            status_panel("THROTTLE",   &format!("{:.0}%",  d.throttle * 100.0), d.throttle,              CYAN),
-            status_panel("BRAKE",      if d.brake { "ACTIVE" } else { "OFF" },   if d.brake { 1.0 } else { 0.0 }, if d.brake { RED } else { COLOR_DIM }),
-            status_panel("MOTOR TEMP", &format!("{:.1}°C", d.motor_temp),        d.motor_temp / 100.0,    level_color(d.motor_temp / 100.0)),
+            status_panel("THROTTLE",   &format!("{:.0}%",  d.throttle * 100.0), d.throttle,               CYAN),
+            direction_panel(&d.motor_direction),
+            status_panel("MOTOR TEMP", &format!("{:.1}°C", d.motor_temp),        d.motor_temp / 100.0,     level_color(d.motor_temp / 100.0)),
             status_panel("CTRL TEMP",  &format!("{:.1}°C", d.controller_temp),   d.controller_temp / 80.0, level_color(d.controller_temp / 80.0)),
         ]
         .spacing(8)
@@ -183,19 +203,16 @@ fn level_color(frac: f32) -> Color {
     if frac >= 0.85 { RED } else if frac >= 0.65 { AMBER } else { CYAN }
 }
 
-fn voltage_color(v: f32) -> Color {
-    if v < 85.0 { RED } else if v < 92.0 { AMBER } else { GREEN }
-}
-
 // ─── Gauge Canvas ─────────────────────────────────────────────────────────────
 
 struct GaugeCanvas {
-    label:   String,
-    value:   f32,
-    min:     f32,
-    max:     f32,
-    display: String,
-    color:   Color,
+    label:     String,
+    value:     f32,
+    min:       f32,
+    max:       f32,
+    display:   String,
+    color:     Color,
+    peak_frac: Option<f32>, // 0.0–1.0, draws a second hold needle if Some
 }
 
 impl<Message> canvas::Program<Message> for GaugeCanvas {
@@ -251,6 +268,18 @@ impl<Message> canvas::Program<Message> for GaugeCanvas {
                 Stroke::default().with_color(Color::WHITE).with_width(2.0),
             );
 
+            // Peak hold needle (thin, amber, stays at max)
+            if let Some(pf) = self.peak_frac {
+                let pa = start + sweep * pf.clamp(0.0, 1.0);
+                frame.stroke(
+                    &Path::line(
+                        iced::Point::new(cx + pa.cos() * (r - 14.0), cy + pa.sin() * (r - 14.0)),
+                        iced::Point::new(cx + pa.cos() * (r + 1.0),  cy + pa.sin() * (r + 1.0)),
+                    ),
+                    Stroke::default().with_color(AMBER).with_width(2.5),
+                );
+            }
+
             // Hub dot
             frame.fill(
                 &Path::circle(iced::Point::new(cx, cy), 5.0),
@@ -305,11 +334,12 @@ fn draw_arc(frame: &mut Frame, cx: f32, cy: f32, r: f32, start: f32, end: f32, c
 
 fn gauge_panel<'a>(
     label: &str, value: f32, min: f32, max: f32, display: &str, color: Color,
+    peak_frac: Option<f32>,
 ) -> Element<'a, Message> {
     container(
         canvas(GaugeCanvas {
             label: label.to_string(), value, min, max,
-            display: display.to_string(), color,
+            display: display.to_string(), color, peak_frac,
         })
         .width(Length::Fill)
         .height(Length::Fill)
@@ -385,6 +415,214 @@ fn status_panel<'a>(label: &str, val: &str, fill: f32, color: Color) -> Element<
         })
         .width(Length::Fill)
         .height(Length::Fill)
+    )
+    .style(|_theme: &Theme| container::Style {
+        background: Some(iced::Background::Color(BG_PANEL)),
+        border: iced::Border { color: COLOR_BORDER, width: 1.0, radius: 4.0.into() },
+        ..Default::default()
+    })
+    .width(Length::FillPortion(1))
+    .height(Length::Fill)
+    .padding([6, 10])
+    .into()
+}
+
+// ─── Battery SoC Panel ────────────────────────────────────────────────────────
+// Estimates SoC from voltage using a simple linear map over the usable range.
+// Replace the min/max here to match your actual pack's voltage window.
+
+const PACK_V_MIN: f32 = 84.0;  // 0% — adjust to your pack
+const PACK_V_MAX: f32 = 102.0; // 100% — adjust to your pack
+const SOC_SEGMENTS: usize = 10;
+
+struct SocCanvas { voltage: f32, soc: f32 }
+
+impl<Message> canvas::Program<Message> for SocCanvas {
+    type State = ();
+    fn draw(
+        &self, _state: &(), renderer: &iced::Renderer, _theme: &Theme,
+        bounds: iced::Rectangle, _cursor: iced::mouse::Cursor,
+    ) -> Vec<Geometry> {
+        let cache = Cache::default();
+        let geom = cache.draw(renderer, bounds.size(), |frame: &mut Frame| {
+            let w = bounds.width;
+            let h = bounds.height;
+            let cx = w / 2.0;
+
+            // Battery body dimensions
+            let body_w = w * 0.42;
+            let body_h = h * 0.62;
+            let body_x = cx - body_w / 2.0;
+            let body_y = h * 0.18;
+
+            // Battery terminal nub at top
+            let nub_w = body_w * 0.3;
+            let nub_h = 6.0;
+            frame.fill_rectangle(
+                iced::Point::new(cx - nub_w / 2.0, body_y - nub_h),
+                iced::Size::new(nub_w, nub_h),
+                Color { r: 0.25, g: 0.27, b: 0.32, a: 1.0 },
+            );
+
+            // Battery outline
+            frame.stroke(
+                &Path::rectangle(
+                    iced::Point::new(body_x, body_y),
+                    iced::Size::new(body_w, body_h),
+                ),
+                Stroke::default().with_color(COLOR_BORDER).with_width(1.5),
+            );
+
+            // Filled segments from bottom up
+            let seg_margin = 3.0;
+            let seg_h = (body_h - seg_margin * (SOC_SEGMENTS as f32 + 1.0)) / SOC_SEGMENTS as f32;
+            let filled = (self.soc * SOC_SEGMENTS as f32).round() as usize;
+
+            let seg_color = if self.soc > 0.5 { GREEN }
+                else if self.soc > 0.2 { AMBER }
+                else { RED };
+
+            for i in 0..SOC_SEGMENTS {
+                let seg_y = body_y + body_h - seg_margin - (i as f32 + 1.0) * (seg_h + seg_margin) + seg_margin;
+                let active = i < filled;
+                frame.fill_rectangle(
+                    iced::Point::new(body_x + seg_margin, seg_y),
+                    iced::Size::new(body_w - seg_margin * 2.0, seg_h),
+                    if active { seg_color } else { Color { r: 0.14, g: 0.16, b: 0.21, a: 1.0 } },
+                );
+            }
+
+            // SoC % label
+            frame.fill_text(canvas::Text {
+                content: format!("{:.0}%", self.soc * 100.0),
+                position: iced::Point::new(cx, body_y + body_h + 10.0),
+                color: seg_color,
+                size: iced::Pixels(18.0),
+                font: Font::MONOSPACE,
+                align_x: iced::alignment::Horizontal::Center.into(),
+                align_y: iced::alignment::Vertical::Top.into(),
+                ..canvas::Text::default()
+            });
+
+            // Voltage label
+            frame.fill_text(canvas::Text {
+                content: format!("{:.1}V", self.voltage),
+                position: iced::Point::new(cx, body_y + body_h + 28.0),
+                color: COLOR_DIM,
+                size: iced::Pixels(10.0),
+                font: Font::MONOSPACE,
+                align_x: iced::alignment::Horizontal::Center.into(),
+                align_y: iced::alignment::Vertical::Top.into(),
+                ..canvas::Text::default()
+            });
+
+            // Label
+            frame.fill_text(canvas::Text {
+                content: "BATTERY SOC".to_string(),
+                position: iced::Point::new(cx, h - 5.0),
+                color: COLOR_DIM,
+                size: iced::Pixels(10.0),
+                font: Font::MONOSPACE,
+                align_x: iced::alignment::Horizontal::Center.into(),
+                align_y: iced::alignment::Vertical::Bottom.into(),
+                ..canvas::Text::default()
+            });
+        });
+        vec![geom]
+    }
+}
+
+fn soc_panel<'a>(voltage: f32) -> Element<'a, Message> {
+    let soc = ((voltage - PACK_V_MIN) / (PACK_V_MAX - PACK_V_MIN)).clamp(0.0, 1.0);
+    container(
+        canvas(SocCanvas { voltage, soc })
+            .width(Length::Fill)
+            .height(Length::Fill)
+    )
+    .style(|_theme: &Theme| container::Style {
+        background: Some(iced::Background::Color(BG_PANEL)),
+        border: iced::Border { color: COLOR_BORDER, width: 1.0, radius: 4.0.into() },
+        ..Default::default()
+    })
+    .width(Length::FillPortion(1))
+    .height(Length::Fill)
+    .padding(10)
+    .into()
+}
+
+// ─── Motor Direction Panel ────────────────────────────────────────────────────
+
+struct DirectionCanvas { direction: MotorDirection }
+
+impl<Message> canvas::Program<Message> for DirectionCanvas {
+    type State = ();
+    fn draw(
+        &self, _state: &(), renderer: &iced::Renderer, _theme: &Theme,
+        bounds: iced::Rectangle, _cursor: iced::mouse::Cursor,
+    ) -> Vec<Geometry> {
+        let cache = Cache::default();
+        let geom = cache.draw(renderer, bounds.size(), |frame: &mut Frame| {
+            let w = bounds.width;
+            let h = bounds.height;
+            let cx = w / 2.0;
+
+            let (label, color) = match self.direction {
+                MotorDirection::Forward => ("▶ FWD",  CYAN),
+                MotorDirection::Neutral => ("■ NEUT", AMBER),
+                MotorDirection::Reverse => ("◀ REV",  RED),
+            };
+
+            // Colored background pill
+            let pill_w = w * 0.80;
+            let pill_h = h * 0.44;
+            let pill_x = cx - pill_w / 2.0;
+            let pill_y = (h - pill_h) / 2.0 - 6.0;
+
+            frame.fill_rectangle(
+                iced::Point::new(pill_x, pill_y),
+                iced::Size::new(pill_w, pill_h),
+                Color { r: color.r * 0.15, g: color.g * 0.15, b: color.b * 0.15, a: 1.0 },
+            );
+            frame.stroke(
+                &Path::rectangle(
+                    iced::Point::new(pill_x, pill_y),
+                    iced::Size::new(pill_w, pill_h),
+                ),
+                Stroke::default().with_color(color).with_width(1.5),
+            );
+
+            frame.fill_text(canvas::Text {
+                content: label.to_string(),
+                position: iced::Point::new(cx, pill_y + pill_h / 2.0),
+                color,
+                size: iced::Pixels(15.0),
+                font: Font::MONOSPACE,
+                align_x: iced::alignment::Horizontal::Center.into(),
+                align_y: iced::alignment::Vertical::Center.into(),
+                ..canvas::Text::default()
+            });
+
+            // Label
+            frame.fill_text(canvas::Text {
+                content: "DIRECTION".to_string(),
+                position: iced::Point::new(0.0, 0.0),
+                color: COLOR_DIM,
+                size: iced::Pixels(10.0),
+                font: Font::MONOSPACE,
+                align_x: iced::alignment::Horizontal::Left.into(),
+                align_y: iced::alignment::Vertical::Top.into(),
+                ..canvas::Text::default()
+            });
+        });
+        vec![geom]
+    }
+}
+
+fn direction_panel<'a>(direction: &MotorDirection) -> Element<'a, Message> {
+    container(
+        canvas(DirectionCanvas { direction: direction.clone() })
+            .width(Length::Fill)
+            .height(Length::Fill)
     )
     .style(|_theme: &Theme| container::Style {
         background: Some(iced::Background::Color(BG_PANEL)),

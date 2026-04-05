@@ -1,4 +1,5 @@
 use embedded_can::Frame;
+#[cfg(feature = "can")]
 use socketcan::{CanFrame, CanId};
 use crate::messages_kelly;
 use crate::messages_kelly::{Message2CommandStatus,Message2FeedbackStatus};

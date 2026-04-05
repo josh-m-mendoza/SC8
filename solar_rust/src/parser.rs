@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use embedded_can::Frame;
+#[cfg(feature = "can")]
 use socketcan::{CanFrame, CanId};
 use std::convert::TryFrom;
 
