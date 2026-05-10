@@ -81,7 +81,7 @@ impl PowerInput {
     pub const INPUT_CURRENT_MAX: i32 = 0_i32;
 
     /// Construct new PowerInput from values
-    pub fn new(input_voltage: f32, input_current: f32) -> Result<Self, CanError> {
+    pub fn new(input_voltage: i32, input_current: i32) -> Result<Self, CanError> {
         let mut res = Self { raw: [0u8; 8] };
         res.set_input_voltage(input_voltage)?;
         res.set_input_current(input_current)?;
@@ -102,7 +102,7 @@ impl PowerInput {
     /// - Unit: "V"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn input_voltage(&self) -> f32 {
+    pub fn input_voltage(&self) -> i32 {
         self.input_voltage_raw()
     }
 
@@ -115,26 +115,24 @@ impl PowerInput {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn input_voltage_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
+    pub fn input_voltage_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<i32>();
 
-       // let factor = 1;
-        //let signal = signal as i32;
-        //i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of InputVoltage
     #[inline(always)]
-    pub fn set_input_voltage(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: PowerInput::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_input_voltage(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: PowerInput::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -148,7 +146,7 @@ impl PowerInput {
     /// - Unit: "A"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn input_current(&self) -> f32 {
+    pub fn input_current(&self) -> i32 {
         self.input_current_raw()
     }
 
@@ -161,26 +159,24 @@ impl PowerInput {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn input_current_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<u32>();
+    pub fn input_current_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of InputCurrent
     #[inline(always)]
-    pub fn set_input_current(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: PowerInput::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_input_current(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: PowerInput::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[32..64].store_le(value);
         Ok(())
     }
@@ -283,13 +279,13 @@ impl PowerOutput {
     pub const MESSAGE_ID: embedded_can::Id =
         Id::Standard(unsafe { StandardId::new_unchecked(0x601) });
 
-   // pub const OUTPUT_VOLTAGE_MIN: i32 = 0_i32;
-   // pub const OUTPUT_VOLTAGE_MAX: i32 = 0_i32;
-  ///  pub const OUTPUT_CURRENT_MIN: i32 = 0_i32;
- //   pub const OUTPUT_CURRENT_MAX: i32 = 0_i32;
+    pub const OUTPUT_VOLTAGE_MIN: i32 = 0_i32;
+    pub const OUTPUT_VOLTAGE_MAX: i32 = 0_i32;
+    pub const OUTPUT_CURRENT_MIN: i32 = 0_i32;
+    pub const OUTPUT_CURRENT_MAX: i32 = 0_i32;
 
     /// Construct new PowerOutput from values
-    pub fn new(output_voltage: f32, output_current: f32) -> Result<Self, CanError> {
+    pub fn new(output_voltage: i32, output_current: i32) -> Result<Self, CanError> {
         let mut res = Self { raw: [0u8; 8] };
         res.set_output_voltage(output_voltage)?;
         res.set_output_current(output_current)?;
@@ -310,7 +306,7 @@ impl PowerOutput {
     /// - Unit: "V"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn output_voltage(&self) -> f32 {
+    pub fn output_voltage(&self) -> i32 {
         self.output_voltage_raw()
     }
 
@@ -323,26 +319,24 @@ impl PowerOutput {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn output_voltage_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
+    pub fn output_voltage_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<i32>();
 
-       // let factor = 1;
-       // let signal = signal as u32;
-       // let integral_type = u32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of OutputVoltage
     #[inline(always)]
-    pub fn set_output_voltage(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: PowerOutput::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_output_voltage(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: PowerOutput::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();  
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -356,7 +350,7 @@ impl PowerOutput {
     /// - Unit: "A"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn output_current(&self) -> f32 {
+    pub fn output_current(&self) -> i32 {
         self.output_current_raw()
     }
 
@@ -369,26 +363,24 @@ impl PowerOutput {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn output_current_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<u32>();
+    pub fn output_current_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of OutputCurrent
     #[inline(always)]
-    pub fn set_output_current(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: PowerOutput::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_output_current(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: PowerOutput::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[32..64].store_le(value);
         Ok(())
     }
@@ -498,7 +490,7 @@ impl Temperature {
     pub const CONTROLLER_TEMPERATURE_MAX: i32 = 0_i32;
 
     /// Construct new Temperature from values
-    pub fn new(mosfet_temperature: f32, controller_temperature: f32) -> Result<Self, CanError> {
+    pub fn new(mosfet_temperature: i32, controller_temperature: i32) -> Result<Self, CanError> {
         let mut res = Self { raw: [0u8; 8] };
         res.set_mosfet_temperature(mosfet_temperature)?;
         res.set_controller_temperature(controller_temperature)?;
@@ -519,7 +511,7 @@ impl Temperature {
     /// - Unit: "C"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn mosfet_temperature(&self) -> f32 {
+    pub fn mosfet_temperature(&self) -> i32 {
         self.mosfet_temperature_raw()
     }
 
@@ -532,28 +524,24 @@ impl Temperature {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn mosfet_temperature_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
+    pub fn mosfet_temperature_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
-
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of MosfetTemperature
     #[inline(always)]
-    pub fn set_mosfet_temperature(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: Temperature::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_mosfet_temperature(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: Temperature::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -567,7 +555,7 @@ impl Temperature {
     /// - Unit: "C"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn controller_temperature(&self) -> f32 {
+    pub fn controller_temperature(&self) -> i32 {
         self.controller_temperature_raw()
     }
 
@@ -580,26 +568,24 @@ impl Temperature {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn controller_temperature_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<u32>();
+    pub fn controller_temperature_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of ControllerTemperature
     #[inline(always)]
-    pub fn set_controller_temperature(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: Temperature::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_controller_temperature(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: Temperature::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[32..64].store_le(value);
         Ok(())
     }
@@ -709,7 +695,7 @@ impl AuxillaryPowerSupply {
     pub const THREE_VOLT_MAX: i32 = 0_i32;
 
     /// Construct new AuxillaryPowerSupply from values
-    pub fn new(twelve_volt: f32, three_volt: f32) -> Result<Self, CanError> {
+    pub fn new(twelve_volt: i32, three_volt: i32) -> Result<Self, CanError> {
         let mut res = Self { raw: [0u8; 8] };
         res.set_twelve_volt(twelve_volt)?;
         res.set_three_volt(three_volt)?;
@@ -730,7 +716,7 @@ impl AuxillaryPowerSupply {
     /// - Unit: "V"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn twelve_volt(&self) -> f32 {
+    pub fn twelve_volt(&self) -> i32 {
         self.twelve_volt_raw()
     }
 
@@ -743,26 +729,24 @@ impl AuxillaryPowerSupply {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn twelve_volt_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
+    pub fn twelve_volt_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of TwelveVolt
     #[inline(always)]
-    pub fn set_twelve_volt(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: AuxillaryPowerSupply::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_twelve_volt(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: AuxillaryPowerSupply::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -776,7 +760,7 @@ impl AuxillaryPowerSupply {
     /// - Unit: "V"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn three_volt(&self) -> f32 {
+    pub fn three_volt(&self) -> i32 {
         self.three_volt_raw()
     }
 
@@ -789,27 +773,24 @@ impl AuxillaryPowerSupply {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn three_volt_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<u32>();
+    pub fn three_volt_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of ThreeVolt
     #[inline(always)]
-    pub fn set_three_volt(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: AuxillaryPowerSupply::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_three_volt(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: AuxillaryPowerSupply::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[32..64].store_le(value);
         Ok(())
     }
@@ -921,7 +902,7 @@ impl Limits {
     pub const MAX_INPUT_CURRENT_MAX: i32 = 0_i32;
 
     /// Construct new Limits from values
-    pub fn new(max_output_voltage: f32, max_input_current: f32) -> Result<Self, CanError> {
+    pub fn new(max_output_voltage: i32, max_input_current: i32) -> Result<Self, CanError> {
         let mut res = Self { raw: [0u8; 8] };
         res.set_max_output_voltage(max_output_voltage)?;
         res.set_max_input_current(max_input_current)?;
@@ -942,7 +923,7 @@ impl Limits {
     /// - Unit: "V"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn max_output_voltage(&self) -> f32 {
+    pub fn max_output_voltage(&self) -> i32 {
         self.max_output_voltage_raw()
     }
 
@@ -955,26 +936,24 @@ impl Limits {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn max_output_voltage_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
+    pub fn max_output_voltage_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of MaxOutputVoltage
     #[inline(always)]
-    pub fn set_max_output_voltage(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: Limits::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_max_output_voltage(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: Limits::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -988,7 +967,7 @@ impl Limits {
     /// - Unit: "A"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn max_input_current(&self) -> f32 {
+    pub fn max_input_current(&self) -> i32 {
         self.max_input_current_raw()
     }
 
@@ -1001,26 +980,24 @@ impl Limits {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn max_input_current_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<u32>();
+    pub fn max_input_current_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of MaxInputCurrent
     #[inline(always)]
-    pub fn set_max_input_current(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: Limits::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_max_input_current(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: Limits::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[32..64].store_le(value);
         Ok(())
     }
@@ -2165,8 +2142,8 @@ impl PowerConnector {
 
     /// Construct new PowerConnector from values
     pub fn new(
-        output_voltage_battery_side: f32,
-        power_connector_temp: f32,
+        output_voltage_battery_side: i32,
+        power_connector_temp: i32,
     ) -> Result<Self, CanError> {
         let mut res = Self { raw: [0u8; 8] };
         res.set_output_voltage_battery_side(output_voltage_battery_side)?;
@@ -2188,7 +2165,7 @@ impl PowerConnector {
     /// - Unit: "V"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn output_voltage_battery_side(&self) -> f32 {
+    pub fn output_voltage_battery_side(&self) -> i32 {
         self.output_voltage_battery_side_raw()
     }
 
@@ -2201,26 +2178,24 @@ impl PowerConnector {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn output_voltage_battery_side_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
+    pub fn output_voltage_battery_side_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        // i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of OutputVoltageBatterySide
     #[inline(always)]
-    pub fn set_output_voltage_battery_side(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: PowerConnector::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;
+    pub fn set_output_voltage_battery_side(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: PowerConnector::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -2234,7 +2209,7 @@ impl PowerConnector {
     /// - Unit: "C"
     /// - Receivers: Vector__XXX
     #[inline(always)]
-    pub fn power_connector_temp(&self) -> f32 {
+    pub fn power_connector_temp(&self) -> i32 {
         self.power_connector_temp_raw()
     }
 
@@ -2247,26 +2222,24 @@ impl PowerConnector {
     /// - Byte order: LittleEndian
     /// - Value type: Signed
     #[inline(always)]
-    pub fn power_connector_temp_raw(&self) -> f32 {
-        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<u32>();
+    pub fn power_connector_temp_raw(&self) -> i32 {
+        let signal = self.raw.view_bits::<Lsb0>()[32..64].load_le::<i32>();
 
-        // let factor = 1;
-        // let signal = signal as i32;
-        //i32::from(signal).saturating_mul(factor).saturating_add(0)
-        f32::from_bits(signal)
+        let factor = 1;
+        let signal = signal as i32;
+        i32::from(signal).saturating_mul(factor).saturating_add(0)
     }
 
     /// Set value of PowerConnectorTemp
     #[inline(always)]
-    pub fn set_power_connector_temp(&mut self, value: f32) -> Result<(), CanError> {
-        // let factor = 1;
-        // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
-        //     message_id: PowerConnector::MESSAGE_ID,
-        // })?;
-        // let value = (value / factor) as i32;  
+    pub fn set_power_connector_temp(&mut self, value: i32) -> Result<(), CanError> {
+        let factor = 1;
+        let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
+            message_id: PowerConnector::MESSAGE_ID,
+        })?;
+        let value = (value / factor) as i32;
 
-        // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();
+        let value = u32::from_ne_bytes(value.to_ne_bytes());
         self.raw.view_bits_mut::<Lsb0>()[32..64].store_le(value);
         Ok(())
     }

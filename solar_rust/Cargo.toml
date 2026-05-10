@@ -1,3 +1,4 @@
+
 [package]
 name = "solar_rust"
 version = "0.1.0"
@@ -11,7 +12,15 @@ clap = "4.5.57"
 dbc-codegen = { git = "https://github.com/technocreatives/dbc-codegen.git", rev = "5b9d3d0670563ac91f303ef689e0357b198dbc32" }
 defmt = "1.0.1"
 embedded-can = "0.4.1"
+iovec = "0.1.4"
+nix = {version = "0.31.2", features =["socket","uio"] }
+rand = "0.10.1"
+redis = { version = "0.25", features = ["aio","tokio-comp"] }
+redis_ts = "0.5.4"
 socketcan = "3.3"
+tokio = {version = "1", features = ["full"]}
+tracing = "0.1.44"
+tracing-subscriber = "0.3.23"
 
 [features]
 arb = []

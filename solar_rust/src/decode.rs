@@ -1,12 +1,10 @@
 use embedded_can::Frame;
 use socketcan::{CanFrame, CanId};
-use crate::messages_kelly;
+use crate::messages_mppt;
 use crate::messages_kelly::{Message2CommandStatus,Message2FeedbackStatus};
+use crate::messages_kelly;
 
-
-
-
-pub trait DecodeMessage{
+pub trait DecodeMessage{ //TODO, MAKE THIS Trait implementation and switch to method call syntax in main.rs
     fn decodeMessage(&self) -> Vec<String>;
 }
 
@@ -83,3 +81,52 @@ impl messages_kelly::Message2{
         ]
     }
 }
+
+impl DecodeMessage for messages_mppt::PowerInput{
+    fn decodeMessage(&self)-> Vec<String>{
+        let input_voltage = self.input_voltage();
+        let input_current = self.input_current();
+
+        vec![
+            format!("Input Voltage: {}", input_voltage),
+            format!("Input Current: {}", input_current)
+            ]
+
+    }
+}
+
+
+impl DecodeMessage for messages_mppt::PowerOutput{
+    fn decodeMessage(&self) -> Vec<String>{
+        let output_voltage = self.output_voltage();
+        let output_current = self.output_current();
+
+        vec!
+            [
+                format!("Output Voltage: {}", output_voltage),
+                format!("Output Current: {}", output_current)
+            ]
+        
+    } 
+}
+
+
+impl DecodeMessage for messages_mppt::Temperature{
+    fn decodeMessage(&self) -> Vec<String>{
+        let mosfet_temperature = self.mosfet_temperature();
+        let controller_temperature = self.controller_temperature();
+        
+
+        vec![
+            format!("Mosfet Temp: {}", mosfet_temperature),
+            format!("Controller Temperature: {}", controller_temperature)
+        ]
+    }
+}
+
+
+// impl DecodeMessage for messages_mppt::AuxillaryPowerSupply{
+//     fn decodeMessage(&self)->Vec<String>{
+//         let 
+//     }
+// }
