@@ -1,7 +1,4 @@
-mod parser;
-use parser::parse_log;
 mod messages_kelly;
-// use messages_kelly;
 use anyhow::{Context, Result};
 use socketcan::{dump::Reader, CanAnyFrame, CanFrame,CanFdSocket, Socket};
 use std::process;

@@ -1,0 +1,3 @@
+Add comments to all code
+Make socket a runtime flag for both bus scripts
+pass clones of connection from main to each thread
