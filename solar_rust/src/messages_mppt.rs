@@ -118,7 +118,7 @@ impl PowerInput {
     pub fn input_voltage_raw(&self) -> f32 {
         let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
 
-       // let factor = 1;
+        // let factor = 1;
         //let signal = signal as i32;
         //i32::from(signal).saturating_mul(factor).saturating_add(0)
         f32::from_bits(signal)
@@ -283,10 +283,10 @@ impl PowerOutput {
     pub const MESSAGE_ID: embedded_can::Id =
         Id::Standard(unsafe { StandardId::new_unchecked(0x601) });
 
-   // pub const OUTPUT_VOLTAGE_MIN: i32 = 0_i32;
-   // pub const OUTPUT_VOLTAGE_MAX: i32 = 0_i32;
-  ///  pub const OUTPUT_CURRENT_MIN: i32 = 0_i32;
- //   pub const OUTPUT_CURRENT_MAX: i32 = 0_i32;
+    // pub const OUTPUT_VOLTAGE_MIN: i32 = 0_i32;
+    // pub const OUTPUT_VOLTAGE_MAX: i32 = 0_i32;
+    ///  pub const OUTPUT_CURRENT_MIN: i32 = 0_i32;
+    //   pub const OUTPUT_CURRENT_MAX: i32 = 0_i32;
 
     /// Construct new PowerOutput from values
     pub fn new(output_voltage: f32, output_current: f32) -> Result<Self, CanError> {
@@ -326,9 +326,9 @@ impl PowerOutput {
     pub fn output_voltage_raw(&self) -> f32 {
         let signal = self.raw.view_bits::<Lsb0>()[0..32].load_le::<u32>();
 
-       // let factor = 1;
-       // let signal = signal as u32;
-       // let integral_type = u32::from(signal).saturating_mul(factor).saturating_add(0)
+        // let factor = 1;
+        // let signal = signal as u32;
+        // let integral_type = u32::from(signal).saturating_mul(factor).saturating_add(0)
         f32::from_bits(signal)
     }
 
@@ -342,7 +342,7 @@ impl PowerOutput {
         // let value = (value / factor) as i32;
 
         // let value = u32::from_ne_bytes(value.to_ne_bytes());
-        let value = value.to_bits();  
+        let value = value.to_bits();
         self.raw.view_bits_mut::<Lsb0>()[0..32].store_le(value);
         Ok(())
     }
@@ -539,7 +539,6 @@ impl Temperature {
         // let signal = signal as i32;
         // i32::from(signal).saturating_mul(factor).saturating_add(0)
         f32::from_bits(signal)
-
     }
 
     /// Set value of MosfetTemperature
@@ -550,7 +549,6 @@ impl Temperature {
         //     message_id: Temperature::MESSAGE_ID,
         // })?;
         // let value = (value / factor) as i32;
-
 
         // let value = u32::from_ne_bytes(value.to_ne_bytes());
         let value = value.to_bits();
@@ -2063,7 +2061,8 @@ impl core::fmt::Debug for Status {
 
 impl defmt::Format for Status {
     fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f,
+        defmt::write!(
+            f,
             "Status {{ ErrorReserved={:?} ErrorMosfetOverheat={:?} ErrorLowArrowPower={:?} ErrorHwOverVoltage={:?} ErrorHwOverCurrent={:?} ErrorBatteryLow={:?} ErrorBatteryFull={:?} Error12vUndervoltage={:?} LimitOutputVoltageMax={:?} LimitMosfetTemperature={:?} LimitLocalMPPT={:?} LimitInputCurrentMin={:?} LimitInputCurrentMax={:?} LimitGlobalMPPT={:?} LimitDutyCycleMax={:?} LimitDuryCycleMin={:?} CanRXErrorCounter={:?} CanTXErrorCounter={:?} CanTXOverflowCounter={:?} Mode={:?} Reserved={:?} TestCounter={:?} }}",
             self.error_reserved(),
             self.error_mosfet_overheat(),
@@ -2087,7 +2086,7 @@ impl defmt::Format for Status {
             self.mode(),
             self.reserved(),
             self.test_counter(),
-            );
+        );
     }
 }
 
@@ -2263,7 +2262,7 @@ impl PowerConnector {
         // let value = value.checked_sub(0).ok_or(CanError::ParameterOutOfRange {
         //     message_id: PowerConnector::MESSAGE_ID,
         // })?;
-        // let value = (value / factor) as i32;  
+        // let value = (value / factor) as i32;
 
         // let value = u32::from_ne_bytes(value.to_ne_bytes());
         let value = value.to_bits();

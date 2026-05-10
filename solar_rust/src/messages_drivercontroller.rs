@@ -1192,7 +1192,8 @@ impl core::fmt::Debug for Switch {
 
 impl defmt::Format for Switch {
     fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f,
+        defmt::write!(
+            f,
             "Switch {{ IgnitionRun={:?} Flags={:?} State={:?} Brake={:?} ModeRegen={:?} ChargePort={:?} IgnitionStart={:?} IgnitionAccesories={:?} ModeDrive={:?} ModeNetural={:?} ModeReverse={:?} }}",
             self.ignition_run(),
             self.flags(),
@@ -1205,7 +1206,7 @@ impl defmt::Format for Switch {
             self.mode_drive(),
             self.mode_netural(),
             self.mode_reverse(),
-            );
+        );
     }
 }
 

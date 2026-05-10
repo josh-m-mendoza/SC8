@@ -1,7 +1,7 @@
 use embedded_can::Frame;
 use socketcan::{CanFrame, CanId};
-use solar_rust::parser::parse_log;
 use solar_rust::messages_motorcontroller;
+use solar_rust::parser::parse_log;
 
 #[test]
 #[cfg(feature = "debug")]
@@ -12,7 +12,8 @@ fn golden_decode_motorcontroller() {
     for parsed in frames {
         println!("frame: id={:?} data={:?}", parsed.id(), parsed.data());
 
-        let decoded = messages_motorcontroller::Messages::from_can_message(parsed.id(), parsed.data());
+        let decoded =
+            messages_motorcontroller::Messages::from_can_message(parsed.id(), parsed.data());
 
         match decoded {
             Ok(msg) => {

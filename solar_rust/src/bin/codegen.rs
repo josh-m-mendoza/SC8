@@ -1,9 +1,9 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use std::{
     fs::{self, File},
     io::{BufWriter, Write},
-    process::Command,
     path::Path,
+    process::Command,
 };
 
 use dbc_codegen::*;
@@ -11,10 +11,10 @@ use dbc_codegen::*;
 fn main() -> Result<()> {
     // tuples of dbc files : message files
     let jobs = [
-       // ("./drivercontroller.dbc", "src/messages_drivercontroller.rs"),
+        // ("./drivercontroller.dbc", "src/messages_drivercontroller.rs"),
         // ("./motorcontroller.dbc", "src/messages_motorcontroller.rs"),
         ("./mppt.dbc", "src/messages_mppt_final.rs"),
-    //    ("./kelly_dbc.dbc","src/messages_kelly.rs")
+        //    ("./kelly_dbc.dbc","src/messages_kelly.rs")
     ];
 
     let mut errors: Vec<anyhow::Error> = Vec::new();

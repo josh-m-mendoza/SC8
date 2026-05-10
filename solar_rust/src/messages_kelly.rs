@@ -898,7 +898,8 @@ impl core::fmt::Debug for Message1 {
 
 impl defmt::Format for Message1 {
     fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f,
+        defmt::write!(
+            f,
             "Message1 {{ SpeedRPM={:?} MotorCurrent={:?} BatteryVoltage={:?} IDError={:?} OverVoltage={:?} LowVoltage={:?} Reserved51={:?} Stall={:?} InternalVoltsFault={:?} OverTemperature={:?} ThrottleError={:?} Reserved56={:?} InternalReset={:?} HallThrottleOpen={:?} AngleSensorError={:?} Reserved60={:?} Reserved61={:?} MotorOverTemperature={:?} HallGalvanometerError={:?} }}",
             self.speed_rpm(),
             self.motor_current(),
@@ -919,7 +920,7 @@ impl defmt::Format for Message1 {
             self.reserved61(),
             self.motor_over_temperature(),
             self.hall_galvanometer_error(),
-            );
+        );
     }
 }
 
@@ -1625,7 +1626,8 @@ impl core::fmt::Debug for Message2 {
 
 impl defmt::Format for Message2 {
     fn format(&self, f: defmt::Formatter) {
-        defmt::write!(f,
+        defmt::write!(
+            f,
             "Message2 {{ ThrottleSignal={:?} ControllerTemperature={:?} MotorTemperature={:?} CommandStatus={:?} FeedbackStatus={:?} HallA={:?} HallB={:?} HallC={:?} BrakeSwitch={:?} BackwardSwitch={:?} ForwardSwitch={:?} FootSwitch={:?} BoostSwitch={:?} }}",
             self.throttle_signal(),
             self.controller_temperature(),
@@ -1640,7 +1642,7 @@ impl defmt::Format for Message2 {
             self.forward_switch(),
             self.foot_switch(),
             self.boost_switch(),
-            );
+        );
     }
 }
 
