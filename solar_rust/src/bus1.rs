@@ -26,8 +26,8 @@ use tracing_subscriber;
 pub async fn connect_bus_1() -> anyhow::Result<()>{
     let connection = "redis://127.0.0.1";
     let client = redis::Client::open(connection)?;
-    let mut con: redis::aio::MultiplexedConnection = client.get_multiplexed_async_connection().await?;
-    let sock_rx = match socketcan::CanSocket::open("vcan1") {
+    let mut con: redis::aio::MultiplexedConnection = client.get_multiplexed_async_connection().await?;  
+    let sock_rx = match socketcan::CanSocket::open("vcan1") { //Open socket connection
         Ok(s) => {
             info!("Succesfully connected to Kelly  bus");
             s
@@ -38,7 +38,7 @@ pub async fn connect_bus_1() -> anyhow::Result<()>{
         }
     };
 
-    let keys = [
+    let keys = [ //instantiate redis keys
         "Kelly:motor_current",
         "Kelly:battery_voltage",
         "Kelly:id_error",
@@ -67,7 +67,7 @@ pub async fn connect_bus_1() -> anyhow::Result<()>{
         "Kelly:boost_switch"
     ];
 
-    for key in keys {
+    for key in keys { //Data for Each key persists for 1 min
         let _: Result<(), redis::RedisError> = cmd("TS.CREATE")
             .arg(key)
             .arg("RETENTION")
@@ -77,53 +77,53 @@ pub async fn connect_bus_1() -> anyhow::Result<()>{
             .query_async(&mut con)
             .await;
     }
-    sock_rx.set_nonblocking(true)?;
+    sock_rx.set_nonblocking(true)?; // set socket to nonblocking for async fd
 
-    let timestamp = true;
+    let timestamp = true; //enable timestamps on socket reads so we can get timestamps with message
 
-    match setsockopt(&sock_rx,nix::sys::socket::sockopt::ReceiveTimestamp, &timestamp){
+    match setsockopt(&sock_rx,nix::sys::socket::sockopt::ReceiveTimestamp, &timestamp){ //use nix setsockopt to enable timestamp
         Ok(_) => {},
         Err(e) =>{ error!("Nix error during setsock, {}", e); }
     } 
     
-    let async_fd = AsyncFd::new(sock_rx)?;
+    let async_fd = AsyncFd::new(sock_rx)?; //wrap socket with tokio asyncfd to get async capabilities when reading
 
-    let flags = MsgFlags::empty();
+    let flags = MsgFlags::empty(); //no flags so we pass empty
 
 
     loop{
-        let (iov,time) = async_fd.async_io(Interest::READABLE, |inner| {
-                let mut data = [0u8; 16];
+        let (iov,time) = async_fd.async_io(Interest::READABLE, |inner| { //Calling async_io method. 2 paramaters, we are reading so Interest readable. Second paramater is a closure, Inner is a mut reference  to the socket thats being wrapped by async fd
+                let mut data = [0u8; 16]; // data that we will be recieving from socket
                 let time = {
 
-                    let mut cmsg_buffer = cmsg_space!(nix::sys::time::TimeVal);
+                    let mut cmsg_buffer = cmsg_space!(nix::sys::time::TimeVal); // cmsg buffer is what timestamp gets written into
 
-                    let mut iov = [IoSliceMut::new(&mut data)];
-                    let r = recvmsg::<()>(inner.as_raw_fd(),&mut iov,Some(&mut cmsg_buffer),flags)?;
+                    let mut iov = [IoSliceMut::new(&mut data)]; // wrap data in iovector
+                    let r = recvmsg::<()>(inner.as_raw_fd(),&mut iov,Some(&mut cmsg_buffer),flags)?; //call nix  recvmsg to get message from socket. Pass in raw  filedescriptor, iovector,  flags, and cmsg  buffer. 
                     let time = match r.cmsgs()?.next() {
                         Some(ControlMessageOwned::ScmTimestamp(rtime)) => {Some(rtime)},
                         _ => {None},
                     };
-                    time
+                    time// extract time from cmsg buffer
                 };
 
 
                 let mut data_clone: [u8; 16] = [0u8;16];
 
-                data_clone.clone_from_slice(&data);
+                data_clone.clone_from_slice(&data); //clone data, we  need  to return owned array from closure
 
-                Ok((data_clone, time))
+                Ok((data_clone, time)) // pass up data clone and  time
             }).await?;
 
         
 
-        let time_seconds = match time{
+        let time_seconds = match time{ //ectract the official time value, if it was None we use the redis default value  "*" where redis provides the time
             Some(t_value)=>{t_value.tv_sec().to_string()},
             None=>{error!("Timestamp not written into cmsg buffer, using redis default value, *");
             "*".to_string()}
         };
         println!("{}",time_seconds);
-        let can_id: u32= iov[0] as u32 | 
+        let can_id: u32= iov[0] as u32 |  
                     (iov[1] as u32) << 8 |
                     (iov[2] as u32) << 16 |
                     (iov[3] as u32) << 24;
